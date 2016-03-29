@@ -1,0 +1,7 @@
+int mung;
+int mung2;
+bool b;
+read mung;
+mung2 := (mung - 42) + 22;
+write mung;
+b := not false;

@@ -43,17 +43,21 @@ let print_unop unop =
     | Op_minus -> printf "-"
     | Op_not   -> printf "not "
 
-let rec print_expr expr =
-  match expr with
+let print_const const =
+  match const with
     | Ebool rval -> printf "%b" rval
     | Eint rval -> printf "%d" rval
+
+let rec print_expr expr =
+  match expr with
+    | Econst const -> print_const const
     | Elval rval -> print_lvalue rval
     | Ebinop (expr1, binop, expr2) ->  print_expr expr1;
                                        print_binop binop;
                                        print_expr expr2
     | Eunop (unop, expr1) -> print_unop unop;
                              print_expr expr1
-    | Nested (l, expr1, r) -> printf "(";
+    | Enested (l, expr1, r) -> printf "(";
                               print_expr expr1;
                               printf ")"
 

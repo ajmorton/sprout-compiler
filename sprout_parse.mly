@@ -6,6 +6,7 @@ open Sprout_ast
 %token <bool> BOOL_CONST
 %token <int> INT_CONST
 %token <string> IDENT
+%token CONST
 %token BOOL INT
 %token WRITE READ
 %token ASSIGN
@@ -59,9 +60,12 @@ rvalue :
 lvalue:
   | IDENT { LId $1 }
 
-expr:
-  | BOOL_CONST { Ebool $1 }
+const:
+  | BOOL_CONST { Ebool  $1 }
   | INT_CONST  { Eint  $1 }
+
+expr:
+  | const      { Econst $1 }
   | lvalue     { Elval $1 }
   /* Binary operators */
   | expr PLUS  expr { Ebinop ($1, Op_add, $3) }
@@ -80,4 +84,4 @@ expr:
   | NOT   expr              { Eunop (Op_not,   $2) }
   | MINUS expr %prec UMINUS { Eunop (Op_minus, $2) }
   /* parentheses */
-  | LPAREN expr RPAREN { Nested (L_paren, $2, R_paren) }
+  | LPAREN expr RPAREN { Enested (L_paren, $2, R_paren) }

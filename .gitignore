@@ -1,0 +1,12 @@
+
+*.cmi
+*.cmo
+*.cmx
+*.byte
+*.o
+
+
+sprout
+sprout_parse.ml
+sprout_parse.mli
+sprout_lex.ml

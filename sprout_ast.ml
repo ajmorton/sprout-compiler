@@ -11,6 +11,11 @@ type typedef = (ident * beantype)
 type lparen = L_paren
 type rparen = R_paren
 
+type const =
+  | Ebool of bool
+  | Eint  of int
+
+
 type lvalue =
   | LId of ident
   | LField of (lvalue * ident)
@@ -26,11 +31,10 @@ type unop =
 
   type expr =
     | Elval of lvalue
-    | Ebool of bool
-    | Eint of int
+    | Econst of const
     | Ebinop of (expr * binop * expr)
     | Eunop of (unop * expr)
-    | Nested of (lparen * expr * rparen)
+    | Enested of (lparen * expr * rparen)
 
 
 
