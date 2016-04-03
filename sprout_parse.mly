@@ -13,6 +13,8 @@ open Sprout_ast
 %token LPAREN RPAREN LCURLY RCURLY
 %token EQ NEQ LT GT LTE GTE
 %token AND OR NOT
+%token IF THEN ELSE FI
+%token WHILE DO OD
 %token PLUS MINUS MUL DIV
 %token SEMICOLON COLON COMMA
 %token EOF VAL REF
@@ -98,7 +100,14 @@ stmts:
   | { [] }
 
 stmt :
-  stmt_body SEMICOLON { $1 }
+  | stmt_body SEMICOLON { $1 }
+  | IF expr THEN stmts FI { Ift { expr = $2 ;
+                                  stmts = List.rev $4 } }
+  | IF expr THEN stmts ELSE stmts FI { Ifte { expr2  = $2 ;
+                                              stmts2 = List.rev $4;
+                                              alt    = List.rev $6} }
+  | WHILE expr DO stmts OD { Do { expr3 = $2 ;
+                                  stmts3 = List.rev $4 } }
 
 stmt_body:
   | READ lvalue { Read $2 }

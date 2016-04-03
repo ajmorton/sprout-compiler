@@ -29,6 +29,13 @@ rule token = parse
   | "typedef" { TDKEY }
   | "ref"     { REF }
   | "val"     { VAL }
+  | "if"      { IF }
+  | "then"    { THEN }
+  | "else"    { ELSE }
+  | "fi"      { FI }
+  | "do"      { DO }
+  | "while"   { WHILE }
+  | "od"      { OD }
   (* symbols *)
   | '('  { LPAREN }
   | ')'  { RPAREN }

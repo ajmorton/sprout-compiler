@@ -41,10 +41,28 @@ type rvalue =
 
 type decl = Decl of (ident * beantype)
 
+
 type stmt =
   | Assign of (lvalue * rvalue)
   | Read   of lvalue
   | Write  of expr
+  | Ift    of ift
+  | Ifte   of ifte
+  | Do     of dowhile
+and ift = {
+  expr  : expr ;
+  stmts : stmt list
+}
+and ifte = {
+  expr2  : expr ;
+  stmts2 : stmt list ;
+  alt   : stmt list ;
+}
+and dowhile = {
+  expr3 : expr;
+  stmts3 : stmt list;
+}
+
 
 type fielddefs = {
   (* optional additional field definitions *)

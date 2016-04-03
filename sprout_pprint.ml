@@ -80,6 +80,7 @@ let print_assign (lvalue, rvalue) =
   printf " := ";
   print_rvalue rvalue
 
+
 let rec print_stmts n stmts =
   match stmts with
     | []                  -> ()
@@ -96,10 +97,32 @@ let rec print_stmts n stmts =
                              print_expr stmt;
                              printf ";\n";
                              print_stmts n tail
-
-
-
-
+    | (Ift  ift)::tail    -> print_ifthen n ift ;
+                             print_stmts n tail
+    | (Ifte ifte)::tail   -> print_ifthenelse n ifte ;
+                             print_stmts n tail
+    | (Do dowhile)::tail  -> print_do n dowhile ;
+                             print_stmts n tail
+and print_ifthen n { expr ; stmts } =
+  print n "if ";
+  print_expr expr;
+  printf " then\n";
+  print_stmts (n+1) stmts;
+  print n "fi\n"
+and print_ifthenelse n { expr2 ; stmts2 ; alt } =
+  print n "if ";
+  print_expr expr2;
+  printf " then\n";
+  print_stmts (n+1) stmts2;
+  print n "else\n" ;
+  print_stmts (n+1) alt ;
+  print n "fi\n"
+and print_do n { expr3 ; stmts3 } =
+  print n "while ";
+  print_expr expr3;
+  printf " do\n";
+  print_stmts (n+1) stmts3;
+  print n "od\n"
 
 let rec print_spec spec =
   match spec with

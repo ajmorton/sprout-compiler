@@ -7,15 +7,12 @@ used : bool,
   rec : a_record
 } b_record
 
-proc q ( val    bool x
-       , ref b_record k
-       )
-int n; bool y;
-zf1 := 42;
 
-end
-
-
-proc p (ref int i)
+proc main ()
+int m;
+int n;
+read n;
+  
+while true do n :=1; while true do b:=4; od od
 
 end
