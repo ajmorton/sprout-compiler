@@ -1,11 +1,10 @@
 (* Specification of an AST for bean *)
 type ident = string
 
-(* Keep aliases intact for pretty printing. *)
 (* TODO unify beantype and typespec usage *)
 type beantype =
-  | TBool
-  | TInt
+  | Bool
+  | Int
 
 type lparen = L_paren
 type rparen = R_paren
@@ -28,10 +27,10 @@ type unop =
   | Op_not
 
 type expr =
-  | Elval of lvalue
-  | Econst of const
-  | Ebinop of (expr * binop * expr)
-  | Eunop of (unop * expr)
+  | Elval   of lvalue
+  | Econst  of const
+  | Ebinop  of (expr * binop * expr)
+  | Eunop   of (unop * expr)
   | Enested of (lparen * expr * rparen)
 
 
@@ -44,12 +43,8 @@ type decl = Decl of (ident * beantype)
 
 type stmt =
   | Assign of (lvalue * rvalue)
-  | Read of lvalue
-  | Write of expr
-
-
-(* TODO add semicolon into decl and stmt *)
-type semicolon = Semicolon
+  | Read   of lvalue
+  | Write  of expr
 
 type fielddefs = {
   (* optional additional field definitions *)
@@ -57,18 +52,37 @@ type fielddefs = {
   field : (ident * typespec)
 }
 and typespec =
-  | Bool
-  | Int
-  | Ident of ident
+  | Type   of beantype
+  | Ident  of ident
   | Fields of fielddefs
 
 type tdkey = TDKey
 type tdef = (tdkey * typespec * ident)
 
+type indicator =
+  | Ref
+  | Val
+
+type param = {
+  indicator : indicator ;
+  typespec  : typespec ;
+  id        : ident
+}
+
+type header = {
+  id     : ident ;
+  params : param list
+}
+
+type proc = {
+  header : header ;
+  decls  : decl list ;
+  stmts  : stmt list
+}
+
 type program = {
   tdefs : tdef list ;
-  decls : decl list ;
-  stmts : stmt list
+  procs : proc list
 }
 
 type t = program

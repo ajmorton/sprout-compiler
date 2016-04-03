@@ -3,10 +3,10 @@
 open Sprout_ast
 %}
 
-%token <bool> BOOL_CONST
-%token <int> INT_CONST
+%token <bool>   BOOL_CONST
+%token <int>    INT_CONST
 %token <string> IDENT
-%token CONST TDKEY
+%token CONST TDKEY PROC END
 %token BOOL INT
 %token WRITE READ
 %token ASSIGN
@@ -15,7 +15,7 @@ open Sprout_ast
 %token AND OR NOT
 %token PLUS MINUS MUL DIV
 %token SEMICOLON COLON COMMA
-%token EOF
+%token EOF VAL REF
 
 %nonassoc EQ NEQ LT GT LTE GTE AND OR
 %left PLUS MINUS
@@ -28,16 +28,46 @@ open Sprout_ast
 %%
 
 program:
-  tdefs decls stmts { { tdefs = List.rev $1 ;
-                        decls = List.rev $2 ;
-                        stmts = List.rev $3 } }
+  tdefs procs { { tdefs = List.rev $1 ; procs = List.rev $2 } }
+
+procs :
+  | procs proc { $2 :: $1 }
+  | { [] }
+
+proc :
+  PROC header decls stmts END { {header = $2 ;
+                                 decls  = List.rev $3 ;
+                                 stmts  = List.rev $4
+                                 } }
+header :
+  IDENT LPAREN params RPAREN { { id = $1 ; params = $3} }
+
+params :
+  | params param { $2 :: $1 }
+  | { [] }
+
+/*not happy with this implementation*/
+param :
+  | indicator typespec IDENT COMMA { {indicator = $1;
+                                      typespec  = $2;
+                                      id        = $3} }
+  | indicator typespec IDENT { {indicator = $1;
+                                typespec  = $2;
+                                id        = $3} }
+
+indicator :
+  | VAL { Val }
+  | REF { Ref }
+
+tdefs :
+  | tdefs tdef {$2 :: $1}
+  | { [] }
 
 tdef :
   | TDKEY typespec IDENT { (TDKey, $2, $3) }
 
 typespec:
-  | BOOL                     { Bool }
-  | INT                      { Int }
+  | beantype                 { Type $1 }
   | IDENT                    { Ident $1 }
   | LCURLY opts field RCURLY { Fields { opts = $2 ; field = $3 } }
 
@@ -51,10 +81,6 @@ opt:
 field:
   | IDENT COLON typespec { ($1, $3) }
 
-tdefs :
-  | tdefs tdef {$2 :: $1}
-  | { [] }
-
 decl :
   | beantype IDENT SEMICOLON { Decl ($2, $1) }
 
@@ -63,8 +89,8 @@ decls :
   | { [] }
 
 beantype :
-  | BOOL { TBool }
-  | INT  { TInt }
+  | BOOL { Bool }
+  | INT  { Int }
 
 /* Builds stmts in reverse order */
 stmts:

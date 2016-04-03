@@ -1,14 +1,21 @@
 typedef {
-f1 : int, f2 :
+  f1 : int, f2 :
 { g1 : bool, g2 : bool }
-} arecord
+} a_record
+typedef {
+used : bool,
+  rec : a_record
+} b_record
 
-typedef int b
-int mung;
-int mung2;
-bool b;
-read mung;
-mung2 := (mung - 42) + 22;
-write mung;
-b := not false;
+proc q ( val    bool x
+       , ref b_record k
+       )
+int n; bool y;
+zf1 := 42;
 
+end
+
+
+proc p (ref int i)
+
+end

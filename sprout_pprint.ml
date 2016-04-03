@@ -5,18 +5,25 @@ let rec print n str =
   match (n > 0) with
     | true  -> printf "    ";
                print (n-1) str
-    | false -> printf str
+    | false -> printf str; ()
 
-let print_decl decl =
-  match decl with
-  | (id, TBool) -> printf "bool %s;\n" id
-  | (id, TInt)  -> printf "int %s;\n"  id
+let print_type t =
+  match t with
+  | Bool -> printf "bool"
+  | Int  -> printf "int"
 
-let rec print_decls decls =
+let print_decl n (id, t) =
+(* TODO why does this only work with string as arg? *)
+  print n "";
+  print_type t ;
+  printf " %s" id;
+  printf ";\n"
+
+let rec print_decls n decls =
   match decls with
     | [] -> printf "\n"; ()
-    | (Decl decl)::tail -> print_decl decl;
-                           print_decls tail
+    | (Decl decl)::tail -> print_decl n decl;
+                           print_decls n tail
 
 let rec print_lvalue lvalue =
   match lvalue with
@@ -73,20 +80,22 @@ let print_assign (lvalue, rvalue) =
   printf " := ";
   print_rvalue rvalue
 
-let rec print_stmts stmts =
+let rec print_stmts n stmts =
   match stmts with
-    | []                  -> printf "\n"; ()
-    | (Read stmt)::tail   -> printf "read ";
+    | []                  -> ()
+    | (Read stmt)::tail   -> print n "read ";
                              print_lvalue stmt;
                              printf ";\n";
-                             print_stmts tail
-    | (Assign stmt)::tail -> print_assign stmt;
+                             print_stmts n tail
+    | (Assign stmt)::tail -> print n "";
+                             print_assign stmt;
                              printf ";\n";
-                             print_stmts tail
-    | (Write stmt)::tail  -> printf "write ";
+                             print_stmts n tail
+    | (Write stmt)::tail  -> print n "";
+                             printf "write ";
                              print_expr stmt;
                              printf ";\n";
-                             print_stmts tail
+                             print_stmts n tail
 
 
 
@@ -94,10 +103,9 @@ let rec print_stmts stmts =
 
 let rec print_spec spec =
   match spec with
-    | Bool     -> printf "bool"
-    | Int      -> printf "int"
-    | Ident id -> printf "%s" id
-    | Fields f -> print_fielddefs f
+    | Type   t -> print_type t
+    | Ident  id   -> printf "%s" id
+    | Fields f    -> print_fielddefs f
 
 and print_field (id, spec) =
   printf "%s : " id;
@@ -128,11 +136,49 @@ let print_tdef tdef =
 
 let rec print_tdefs tdefs =
   match tdefs with
-    | [] -> ()
+    | [] -> printf "\n"; ()
     | t::tail ->  print_tdef t;
                   print_tdefs tail
 
-let print_program fmt {tdefs ; decls ; stmts} =
+let print_indicator indicator =
+  match indicator with
+    | Val -> printf "val "
+    | Ref -> printf "ref "
+
+let print_param {indicator ; typespec ; id} =
+  print_indicator indicator ;
+  print_spec typespec ;
+  printf " %s" id
+
+let rec print_params params =
+  match params with
+    | [p]     -> print_param p ; ()
+    | p::tail -> print_param p ;
+                 printf ", " ;
+                 print_params tail
+    | []     -> ()
+
+let print_header { id ; params } =
+  printf "%s" id ;
+  printf "(" ;
+  print_params params ;
+  printf ")\n"
+
+
+let print_proc { header ; decls ; stmts } =
+  printf "proc " ;
+  print_header header ;
+  print_decls 1 decls ;
+  print_stmts 1 stmts ;
+  printf "end\n\n"
+
+let rec print_procs procs =
+  match procs with
+    | [] -> printf "\n" ; ()
+    | p::tail -> print_proc p;
+                 print_procs tail
+
+let print_program fmt {tdefs ; procs} =
+  printf "\n\n";
   print_tdefs tdefs;
-  print_decls decls;
-  print_stmts stmts
+  print_procs procs
