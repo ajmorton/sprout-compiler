@@ -6,15 +6,15 @@ open Sprout_ast
 %token <bool> BOOL_CONST
 %token <int> INT_CONST
 %token <string> IDENT
-%token CONST
+%token CONST TDKEY
 %token BOOL INT
 %token WRITE READ
 %token ASSIGN
-%token LPAREN RPAREN
+%token LPAREN RPAREN LCURLY RCURLY
 %token EQ NEQ LT GT LTE GTE
 %token AND OR NOT
 %token PLUS MINUS MUL DIV
-%token SEMICOLON
+%token SEMICOLON COLON COMMA
 %token EOF
 
 %nonassoc EQ NEQ LT GT LTE GTE AND OR
@@ -28,18 +28,43 @@ open Sprout_ast
 %%
 
 program:
-  decls stmts { { decls = List.rev $1 ; stmts = List.rev $2 } }
+  tdefs decls stmts { { tdefs = List.rev $1 ;
+                        decls = List.rev $2 ;
+                        stmts = List.rev $3 } }
+
+tdef :
+  | TDKEY typespec IDENT { (TDKey, $2, $3) }
+
+typespec:
+  | BOOL                     { Bool }
+  | INT                      { Int }
+  | IDENT                    { Ident $1 }
+  | LCURLY opts field RCURLY { Fields { opts = $2 ; field = $3 } }
+
+opts:
+  | opts opt {$2 :: $1}
+  | { [] }
+
+opt:
+  | IDENT COLON typespec COMMA { ($1, $3) }
+
+field:
+  | IDENT COLON typespec { ($1, $3) }
+
+tdefs :
+  | tdefs tdef {$2 :: $1}
+  | { [] }
 
 decl :
-  | typespec IDENT SEMICOLON { ($2, $1) }
+  | beantype IDENT SEMICOLON { Decl ($2, $1) }
 
 decls :
   | decls decl { $2 :: $1 }
   | { [] }
 
-typespec :
-  | BOOL { Bool }
-  | INT { Int }
+beantype :
+  | BOOL { TBool }
+  | INT  { TInt }
 
 /* Builds stmts in reverse order */
 stmts:

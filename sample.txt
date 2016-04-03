@@ -1,3 +1,9 @@
+typedef {
+f1 : int, f2 :
+{ g1 : bool, g2 : bool }
+} arecord
+
+typedef int b
 int mung;
 int mung2;
 bool b;
@@ -5,3 +11,4 @@ read mung;
 mung2 := (mung - 42) + 22;
 write mung;
 b := not false;
+

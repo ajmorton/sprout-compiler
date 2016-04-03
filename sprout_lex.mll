@@ -23,8 +23,11 @@ rule token = parse
   | "and"   { AND }
   | "or"    { OR }
   | "not"   { NOT }
+  | "typedef" {TDKEY}
   | '('  { LPAREN }
   | ')'  { RPAREN }
+  | '{'  { LCURLY }
+  | '}'  { RCURLY }
   | '='  { EQ }
   | "!=" { NEQ}
   | '<'  { LT }
@@ -36,5 +39,7 @@ rule token = parse
   | '*'  { MUL }
   | '/'  { DIV }
   | ';'  { SEMICOLON }
+  | ':'  { COLON }
+  | ','  { COMMA }
   | ident as lxm { IDENT lxm }
   | eof { EOF }
