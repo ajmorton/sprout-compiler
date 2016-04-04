@@ -54,6 +54,7 @@ rule token = parse
   | ';'  { SEMICOLON }
   | ':'  { COLON }
   | ','  { COMMA }
+  | '.'  { DOT }
   (* other *)
   | ident as lxm { IDENT lxm }
   | eof { EOF }

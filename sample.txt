@@ -11,8 +11,11 @@ used : bool,
 proc main ()
 int m;
 int n;
+
 read n;
-  
+ 
+a.b.c := { a = true , b = {c = true, d = false} };
+ 
 while true do n :=1; while true do b:=4; od od
 
 end

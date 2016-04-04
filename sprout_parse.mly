@@ -6,7 +6,7 @@ open Sprout_ast
 %token <bool>   BOOL_CONST
 %token <int>    INT_CONST
 %token <string> IDENT
-%token CONST TDKEY PROC END
+%token CONST TDKEY PROC END DOT
 %token BOOL INT
 %token WRITE READ
 %token ASSIGN
@@ -50,12 +50,13 @@ params :
 
 /*not happy with this implementation*/
 param :
-  | indicator typespec IDENT COMMA { {indicator = $1;
-                                      typespec  = $2;
-                                      id        = $3} }
-  | indicator typespec IDENT { {indicator = $1;
-                                typespec  = $2;
-                                id        = $3} }
+  | param_body COMMA { $1 }
+  | param_body       { $1 }
+
+param_body :
+  indicator typespec IDENT { {indicator = $1;
+                              typespec  = $2;
+                              id        = $3} }
 
 indicator :
   | VAL { Val }
@@ -105,7 +106,7 @@ stmt :
                                   stmts = List.rev $4 } }
   | IF expr THEN stmts ELSE stmts FI { Ifte { expr2  = $2 ;
                                               stmts2 = List.rev $4;
-                                              alt    = List.rev $6} }
+                                              alts    = List.rev $6} }
   | WHILE expr DO stmts OD { Do { expr3 = $2 ;
                                   stmts3 = List.rev $4 } }
 
@@ -115,10 +116,19 @@ stmt_body:
   | lvalue ASSIGN rvalue { Assign ($1, $3) }
 
 rvalue :
-  | expr { Rexpr $1 }
+  | expr  { Rexpr $1 }
+  | LCURLY inits RCURLY { Inits $2 }
+
+inits :
+  | init COMMA inits { $1::$3 }
+  | init { [$1] }
+
+init :
+  IDENT EQ rvalue { ($1, $3) }
 
 lvalue:
   | IDENT { LId $1 }
+  | IDENT DOT lvalue { LField ($3, $1) }
 
 const:
   | BOOL_CONST { Ebool  $1 }

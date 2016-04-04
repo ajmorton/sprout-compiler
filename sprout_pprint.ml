@@ -28,9 +28,8 @@ let rec print_decls n decls =
 let rec print_lvalue lvalue =
   match lvalue with
     | LId    ident           -> printf "%s" ident
-    | LField (lvalue, ident) -> printf "(";
-                                print_lvalue lvalue;
-                                printf ", %s)" ident
+    | LField (lvalue, ident) -> printf "%s." ident;
+                                print_lvalue lvalue
 
 let print_binop binop =
   match binop with
@@ -60,7 +59,7 @@ let print_const const =
 let rec print_expr expr =
   match expr with
     | Econst const                 -> print_const const
-    | Elval rval                   -> print_lvalue rval
+    | Elval  lval                   -> print_lvalue lval
     | Ebinop (expr1, binop, expr2) -> print_expr expr1;
                                       print_binop binop;
                                       print_expr expr2
@@ -71,9 +70,28 @@ let rec print_expr expr =
                                       printf ")"
 
 
-let print_rvalue rvalue =
+
+
+let rec print_inits inits =
+  match inits with
+    | []      -> ()
+    | [i]     -> print_init i;
+                 ()
+    | i::tail -> print_init i ;
+                 printf ", ";
+                 print_inits tail
+
+
+and print_init (id, rval) =
+  printf "%s = " id;
+  print_rvalue rval
+
+and print_rvalue rvalue =
   match rvalue with
     | Rexpr expr -> print_expr expr
+    | Inits inits -> printf "{" ;
+                     print_inits inits ;
+                     printf "}"
 
 let print_assign (lvalue, rvalue) =
   print_lvalue lvalue;
@@ -109,13 +127,13 @@ and print_ifthen n { expr ; stmts } =
   printf " then\n";
   print_stmts (n+1) stmts;
   print n "fi\n"
-and print_ifthenelse n { expr2 ; stmts2 ; alt } =
+and print_ifthenelse n { expr2 ; stmts2 ; alts } =
   print n "if ";
   print_expr expr2;
   printf " then\n";
   print_stmts (n+1) stmts2;
   print n "else\n" ;
-  print_stmts (n+1) alt ;
+  print_stmts (n+1) alts ;
   print n "fi\n"
 and print_do n { expr3 ; stmts3 } =
   print n "while ";

@@ -1,3 +1,5 @@
+
+(* TODO -- fix ifte --> remove alts *)
 (* Specification of an AST for bean *)
 type ident = string
 
@@ -35,9 +37,13 @@ type expr =
 
 
 
+
 (* Will need to AST elements with additional data.  *)
 type rvalue =
   | Rexpr of expr
+  | Inits of inits
+and
+  inits = (ident * rvalue) list
 
 type decl = Decl of (ident * beantype)
 
@@ -56,7 +62,7 @@ and ift = {
 and ifte = {
   expr2  : expr ;
   stmts2 : stmt list ;
-  alt   : stmt list ;
+  alts   : stmt list ;
 }
 and dowhile = {
   expr3 : expr;
